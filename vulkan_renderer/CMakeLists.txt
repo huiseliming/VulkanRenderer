@@ -11,7 +11,7 @@ file(GLOB_RECURSE VulkanRendererHeaderFiles
 )
 #message(${VulkanRendererHeaderFiles} )
 
-add_library(vulkan_renderer STATIC  ${VulkanRendererSourceFiles} "include/VulkanBase.h")
+add_library(vulkan_renderer STATIC  ${VulkanRendererSourceFiles})
 message(${CMAKE_CURRENT_LIST_DIR})
 
 target_link_libraries(vulkan_renderer PUBLIC Vulkan::Vulkan)

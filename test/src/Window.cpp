@@ -36,9 +36,9 @@ void Window::Destroy()
 		vkDestroySurfaceKHR(Renderer::GetInstance(), m_surfaceKHR, nullptr);
 		m_surfaceKHR = VK_NULL_HANDLE;
 	}
-	if (m_surfaceKHR != nullptr) {
+	if (m_pGLFWWindow != nullptr) {
 		glfwDestroyWindow(m_pGLFWWindow);
-		m_surfaceKHR = nullptr;
+		m_pGLFWWindow = nullptr;
 	}
 }
 
