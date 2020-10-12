@@ -7,6 +7,13 @@
 			THROW_EXCEPT("Assert "#result "Failed");\
 		}
 
+#define VK_DESTROY_CALLBACK(Device, VulkanObject) \
+[device = Device](const Vk##VulkanObject* p##VulkanObject)\
+{\
+	if(*p##VulkanObject != VK_NULL_HANDLE)\
+		vkDestroy##VulkanObject(Device, *p##VulkanObject, nullptr);\
+	delete p##VulkanObject;\
+}
 
 
 

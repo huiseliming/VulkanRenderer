@@ -6,7 +6,7 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(Vulkan REQUIRED) 
 find_package(glm REQUIRED) 
 find_package(fmt REQUIRED) 
-find_package(assimp CONFIG REQUIRED)
+#find_package(assimp CONFIG REQUIRED)
 
 if(NOT DEFINED CMAKE_BUILD_TYPE_INIT)
   set(CMAKE_BUILD_TYPE_INIT "Release")

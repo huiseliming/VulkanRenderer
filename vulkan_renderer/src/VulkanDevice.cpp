@@ -2,14 +2,15 @@
 #include <fmt/format.h>
 #include "Exception.h"
 #include "VulkanRenderer.h"
+
+
 VulkanDevice::VulkanDevice(VkSurfaceKHR surface, std::vector<const char*> enabledExtensions, std::vector<const char*>  enabledValidationLayers)
 {
 	Create(surface, enabledExtensions, enabledValidationLayers);
 }
 VulkanDevice::~VulkanDevice()
 {
-	if(device != VK_NULL_HANDLE)
-		Destroy();
+	Destroy();
 }
 
 void VulkanDevice::Create(VkSurfaceKHR surface, std::vector<const char*> enabledExtensions, std::vector<const char*>  enabledValidationLayers)
@@ -130,8 +131,27 @@ void VulkanDevice::Create(VkSurfaceKHR surface, std::vector<const char*> enabled
 
 void VulkanDevice::Destroy()
 {
-	vkDestroyDevice(device, nullptr);
-	device = VK_NULL_HANDLE;
+	if (device != VK_NULL_HANDLE) {
+		vkDestroyDevice(device, nullptr);
+		device = VK_NULL_HANDLE;
+	}
+}
+
+SwapChainSupportDetail VulkanDevice::GetSwapChainSupportDetail(VkSurfaceKHR surfaceKHR)
+{
+	SwapChainSupportDetail swapChainSupportDetail;
+	VK_ASSERT_SUCCESSED(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surfaceKHR, &swapChainSupportDetail.surfaceCapabilitiesKHR));
+
+	uint32_t surface_format_count;
+	VK_ASSERT_SUCCESSED(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surfaceKHR, &surface_format_count, nullptr));
+	swapChainSupportDetail.surfaceFormatsKHR.resize(surface_format_count);
+	VK_ASSERT_SUCCESSED(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surfaceKHR, &surface_format_count, swapChainSupportDetail.surfaceFormatsKHR.data()));
+
+	uint32_t present_mode_count;
+	VK_ASSERT_SUCCESSED(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surfaceKHR, &present_mode_count, nullptr));
+	swapChainSupportDetail.presentModesKHR.resize(present_mode_count);
+	VK_ASSERT_SUCCESSED(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surfaceKHR, &present_mode_count, swapChainSupportDetail.presentModesKHR.data()));
+	return swapChainSupportDetail;
 }
 
 VkImageView VulkanDevice::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags imageAspectFlags)
@@ -154,25 +174,18 @@ VkImageView VulkanDevice::CreateImageView(VkImage image, VkFormat format, VkImag
 	return imageView;
 }
 
-std::shared_ptr<VkShaderModule> VulkanDevice::CreateShaderModule(const std::vector<char>& code)
+VkShaderModule VulkanDevice::CreateShaderModule(const std::vector<char>& code)
 {
-	std::shared_ptr<VkShaderModule> pShaderModule = std::shared_ptr<VkShaderModule>(
-		new VkShaderModule(),
-		[this](const VkShaderModule* pShaderModule)
-		{ 
-			vkDestroyShaderModule(device, *pShaderModule, nullptr);
-			delete pShaderModule;
-		}
-	);
-	VkShaderModuleCreateInfo create_info{};
-	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	create_info.codeSize = code.size();
-	create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
-	VK_ASSERT_SUCCESSED(vkCreateShaderModule(device, &create_info, nullptr, pShaderModule.get()));
-	return pShaderModule;
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	VkShaderModule shaderModule;
+	VK_ASSERT_SUCCESSED(vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule));
+	return shaderModule;
 }
 
-std::shared_ptr<VkPipelineLayout> VulkanDevice::CreatePipelineLayout(uint32_t setLayoutCount, VkDescriptorSetLayout* setLayout, uint32_t pushConstantRangeCount, VkPushConstantRange* pushConstantRanges)
+VkPipelineLayout VulkanDevice::CreatePipelineLayout(uint32_t setLayoutCount, VkDescriptorSetLayout* setLayout, uint32_t pushConstantRangeCount, VkPushConstantRange* pushConstantRanges)
 {
 	VkPipelineLayoutCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -180,27 +193,13 @@ std::shared_ptr<VkPipelineLayout> VulkanDevice::CreatePipelineLayout(uint32_t se
 	createInfo.pSetLayouts = setLayout;
 	createInfo.pushConstantRangeCount = pushConstantRangeCount;
 	createInfo.pPushConstantRanges = pushConstantRanges;
-	std::shared_ptr<VkPipelineLayout> pPipelineLayout = std::shared_ptr<VkPipelineLayout>(
-		new VkPipelineLayout(),
-		[this](VkPipelineLayout* pPipelineLayout)
-		{
-			vkDestroyPipelineLayout(device, *pPipelineLayout, nullptr);
-			delete pPipelineLayout;
-		}
-	);
-	VK_ASSERT_SUCCESSED(vkCreatePipelineLayout(device, &createInfo, nullptr, pPipelineLayout.get()));
-	return pPipelineLayout;
+	VkPipelineLayout pipelineLayout;
+	VK_ASSERT_SUCCESSED(vkCreatePipelineLayout(device, &createInfo, nullptr, &pipelineLayout));
+	return pipelineLayout;
 }
 
-std::shared_ptr<VkRenderPass> VulkanDevice::CreateRenderPass(uint32_t attachmentCount, VkAttachmentDescription* attachments, uint32_t subpassCount, VkSubpassDescription* subpasses, uint32_t dependencyCount, VkSubpassDependency* dependencies)
+VkRenderPass VulkanDevice::CreateRenderPass(uint32_t attachmentCount, VkAttachmentDescription* attachments, uint32_t subpassCount, VkSubpassDescription* subpasses, uint32_t dependencyCount, VkSubpassDependency* dependencies)
 {
-	std::shared_ptr<VkRenderPass> pRenderPass(new VkRenderPass,
-		[this](VkRenderPass * pRenderPass)
-		{
-			vkDestroyRenderPass(device, *pRenderPass, nullptr);
-			delete pRenderPass;
-		}
-	);
 	VkRenderPassCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	createInfo.attachmentCount = attachmentCount;
@@ -209,9 +208,9 @@ std::shared_ptr<VkRenderPass> VulkanDevice::CreateRenderPass(uint32_t attachment
 	createInfo.pSubpasses = subpasses;
 	createInfo.dependencyCount = dependencyCount;
 	createInfo.pDependencies = dependencies;
-
-	VK_ASSERT_SUCCESSED(vkCreateRenderPass(device, &createInfo, nullptr, pRenderPass.get()));
-	return pRenderPass;
+	VkRenderPass renderPass;
+	VK_ASSERT_SUCCESSED(vkCreateRenderPass(device, &createInfo, nullptr, &renderPass));
+	return renderPass;
 }
 
 VkFormat VulkanDevice::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)

@@ -3,13 +3,14 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include "Singleton.h"
+#include "Window.h"
+#include "Exception.h"
 #include "VulkanRenderer.h"
 #include "VulkanDevice.h"
-#include "Exception.h"
-#include "Window.h"
-
+#include "VulkanSwapChain.h"
 
 VulkanDevice g_device; 
+VulkanSwapChain g_swapChain;
 Window g_window;
 
 
@@ -27,6 +28,7 @@ void Application::StartUp()
 	Renderer::Initialize("TestApplication");
 	g_window.Create();
 	g_device.Create(g_window.GetSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME });
+	g_swapChain.Create(g_device, g_window.GetSurfaceKHR());
 }
 
 void Application::MainLoop()
@@ -39,6 +41,7 @@ void Application::MainLoop()
 
 void Application::Cleanup()
 {
+	g_swapChain.Destroy();
 	g_device.Destroy();
 	g_window.Destroy();
 	Renderer::Cleanup();

@@ -11,12 +11,12 @@ file(GLOB_RECURSE VulkanRendererHeaderFiles
 )
 #message(${VulkanRendererHeaderFiles} )
 
-add_library(vulkan_renderer STATIC  ${VulkanRendererSourceFiles} "src/VulkanSwapChain.cpp" "include/VulkanSwapChain.h")
+add_library(vulkan_renderer STATIC  ${VulkanRendererSourceFiles} "include/VulkanBase.h")
 message(${CMAKE_CURRENT_LIST_DIR})
 
 target_link_libraries(vulkan_renderer PUBLIC Vulkan::Vulkan)
 target_link_libraries(vulkan_renderer PRIVATE glm)
-target_link_libraries(vulkan_renderer PRIVATE assimp::assimp)
+#target_link_libraries(vulkan_renderer PRIVATE assimp::assimp)
 target_link_libraries(vulkan_renderer PRIVATE fmt::fmt-header-only)
 
 target_include_directories(vulkan_renderer PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)

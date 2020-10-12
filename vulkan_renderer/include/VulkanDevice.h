@@ -5,6 +5,12 @@
 #include "VulkanHeader.h"
 #include "VulkanRenderer.h"
 
+struct SwapChainSupportDetail {
+	VkSurfaceCapabilitiesKHR surfaceCapabilitiesKHR;
+	std::vector<VkSurfaceFormatKHR> surfaceFormatsKHR;
+	std::vector<VkPresentModeKHR> presentModesKHR;
+};
+
 class VulkanDevice
 {
 public:
@@ -31,6 +37,10 @@ public:
 		presentQueue = other.presentQueue;
 		queueFamilyIndices = other.queueFamilyIndices;
 	}
+
+	operator VkDevice() { return device; }
+
+
 	void Create(VkSurfaceKHR surface, std::vector<const char*> enabledExtensions, std::vector<const char*>  enabledValidationLayers = 
 		Renderer::enabledInstanceValidationLayers);
 	void Destroy();
@@ -38,6 +48,7 @@ public:
 	VkDevice Get() { return device; }
 	VkDevice  GetDevice() { return Get(); }
 	VkPhysicalDevice GetPhysicalDevice() { return physicalDevice; }
+	SwapChainSupportDetail GetSwapChainSupportDetail(VkSurfaceKHR surfaceKHR);
 
 	uint32_t GetGraphicsQueueFamily() { return queueFamilyIndices.graphics.has_value() ? queueFamilyIndices.graphics.value() : 0xFFFFFFFF; }
 	uint32_t GetComputeQueueFamily() { return queueFamilyIndices.compute.has_value() ? queueFamilyIndices.compute.value() : 0xFFFFFFFF; }
@@ -45,9 +56,9 @@ public:
 	uint32_t GetPresentQueueFamily() { return queueFamilyIndices.present.has_value() ? queueFamilyIndices.present.value() : 0xFFFFFFFF; }
 
 	VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags imageAspectFlags);
-	std::shared_ptr<VkShaderModule> CreateShaderModule(const std::vector<char>& code);
-	std::shared_ptr<VkPipelineLayout> CreatePipelineLayout(uint32_t setLayoutCount, VkDescriptorSetLayout* setLayout, uint32_t pushConstantRangeCount, VkPushConstantRange* pushConstantRanges);
-	std::shared_ptr<VkRenderPass> CreateRenderPass(uint32_t attachmentCount, VkAttachmentDescription* attachments, uint32_t subpassCount, VkSubpassDescription* subpasses, uint32_t dependencyCount, VkSubpassDependency* dependencies);
+	VkShaderModule CreateShaderModule(const std::vector<char>& code);
+	VkPipelineLayout CreatePipelineLayout(uint32_t setLayoutCount, VkDescriptorSetLayout* setLayout, uint32_t pushConstantRangeCount, VkPushConstantRange* pushConstantRanges);
+	VkRenderPass CreateRenderPass(uint32_t attachmentCount, VkAttachmentDescription* attachments, uint32_t subpassCount, VkSubpassDescription* subpasses, uint32_t dependencyCount, VkSubpassDependency* dependencies);
 
 
 	VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
@@ -55,9 +66,8 @@ public:
 
 
 
-
-
 	bool IsPhysicalDeviceSuitable(VkPhysicalDevice physicalDevice);
+
 public:
 	static std::optional<uint32_t> GetQueueFamilyIndex(std::vector<VkQueueFamilyProperties>& queueFamilyProperties, VkQueueFlagBits queueFlags);
 
