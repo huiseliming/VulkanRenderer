@@ -8,6 +8,8 @@
 #include "VulkanRenderer.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include "File.h"
+
 
 VulkanDevice g_device; 
 VulkanSwapChain g_swapChain;
@@ -29,10 +31,16 @@ void Application::StartUp()
 	g_window.Create();
 	g_device.Create(g_window.GetSurfaceKHR(), { VK_KHR_SWAPCHAIN_EXTENSION_NAME });
 	g_swapChain.Create(g_device, g_window.GetSurfaceKHR());
+	auto fragShaderModule = g_device.CreateShaderModule(File::ReadFile("frag.spv"));
+	auto vertShaderModule = g_device.CreateShaderModule(File::ReadFile("vert.spv"));
+
 }
 
 void Application::MainLoop()
 {
+
+
+
 	while (!g_window.ShouldClose())
 	{
 		g_window.PollEvents();
