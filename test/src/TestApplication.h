@@ -11,10 +11,8 @@ public:
 	void StartUp();
 	void MainLoop();
 	void Cleanup();
-
-
 private:
-
+	
 };
 
 

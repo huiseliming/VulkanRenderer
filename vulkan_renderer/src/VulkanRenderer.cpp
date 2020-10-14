@@ -1,8 +1,8 @@
 #include "VulkanRenderer.h"
 #include <iostream>
 #include <fmt/format.h>
-#include "Exception.h"
 #include "VulkanDevice.h"
+
 namespace Renderer
 {
 	bool enableValidationLayers;

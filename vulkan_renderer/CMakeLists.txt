@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 #添加
 file(GLOB_RECURSE VulkanRendererSourceFiles 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
 )
 message(${VulkanRendererSourceFiles} )
 file(GLOB_RECURSE VulkanRendererHeaderFiles 

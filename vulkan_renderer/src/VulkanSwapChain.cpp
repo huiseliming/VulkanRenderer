@@ -1,5 +1,4 @@
 #include "VulkanSwapChain.h"
-#include "Exception.h"
 
 VulkanSwapChain::VulkanSwapChain(VulkanDevice& device, VkSurfaceKHR surfaceKHR)
 {

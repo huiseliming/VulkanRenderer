@@ -1,7 +1,4 @@
 #pragma once
-#include "VulkanHeader.h"
-
-#pragma once
 #include <exception>
 #include <string>
 #include <sstream>
@@ -11,6 +8,8 @@
 
 #define VK_EXCEPT(...)  VulkanException(__LINE__,__FILE__,##__VA_ARGS__)
 #define THROW_VK_EXCEPT(...) throw VK_EXCEPT(##__VA_ARGS__)
+
+enum VkResult;
 
 //异常基类
 class Exception : public std::exception

@@ -1,6 +1,5 @@
 #include "VulkanDevice.h"
 #include <fmt/format.h>
-#include "Exception.h"
 #include "VulkanRenderer.h"
 
 
