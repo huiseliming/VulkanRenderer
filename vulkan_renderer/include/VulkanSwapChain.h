@@ -12,6 +12,11 @@ public:
 	explicit VulkanSwapChain(VulkanDevice& device, VkSurfaceKHR surface);
 	~VulkanSwapChain();
 
+	VulkanSwapChain(const VulkanSwapChain& other) = delete;
+	VulkanSwapChain(VulkanSwapChain&& other) = delete;
+	VulkanSwapChain& operator=(const VulkanSwapChain& other) = delete;
+	VulkanSwapChain& operator=(VulkanSwapChain&& other) = delete;
+
 	void Create(VulkanDevice& device, VkSurfaceKHR surface);
 	void Destroy();
 

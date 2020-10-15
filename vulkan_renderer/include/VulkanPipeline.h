@@ -12,6 +12,11 @@ public:
     explicit VulkanPipeline(VulkanDevice& device);
     ~VulkanPipeline();
 
+    VulkanPipeline(const VulkanPipeline& other) = delete;
+    VulkanPipeline(VulkanPipeline&& other) = delete;
+    VulkanPipeline& operator=(const VulkanPipeline& other) = delete;
+    VulkanPipeline& operator=(VulkanPipeline&& other) = delete;
+
     void Create(VulkanDevice& device);
     void Destroy();
 
@@ -29,20 +34,17 @@ public:
     void SetDepthStencilState(VkBool32 depthTestEnable, VkBool32 depthWriteEnable, VkCompareOp depthCompareOp, VkBool32 depthBoundsTestEnable, VkBool32 stencilTestEnable, VkStencilOpState front, VkStencilOpState back, float minDepthBounds, float maxDepthBounds);
     void SetColorBlendState(VkBool32 logicOpEnable, VkLogicOp logicOp, uint32_t attachmentCount, VkPipelineColorBlendAttachmentState* pAttachments, float blendConstants[4]);
     void SetDynamicState(uint32_t dynamicStateCount, VkDynamicState* pDynamicStates);
+    void SetLayout(uint32_t setLayoutCount, VkDescriptorSetLayout* pSetLayouts, uint32_t pushConstantRangeCount, VkPushConstantRange* pPushConstantRanges);
+    void SetRenderPass(VkRenderPass renderPass);
 
     //VkPipeline Get() { return pipeline_; }
 private:
-    VulkanDevice* device;
+    VulkanDevice* m_pDevice;
     VkPipeline m_pipeline = VK_NULL_HANDLE;
     VkGraphicsPipelineCreateInfo m_graphicsPipelineCreateInfo = {};
     uint32_t m_shaderStagesMask = 0;
+
     std::array<VkPipelineShaderStageCreateInfo, 32> m_shaderStagesCache = {};
-
-
-
-    //VkStructureType                                  sType;
-    //const void*                                      pNext;
-    //VkPipelineCreateFlags                            flags;
     std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages = {};
     VkPipelineVertexInputStateCreateInfo m_vertexInputState = {};
     VkPipelineInputAssemblyStateCreateInfo m_inputAssemblyState = {};
@@ -53,13 +55,9 @@ private:
     VkPipelineDepthStencilStateCreateInfo m_depthStencilState = {};
     VkPipelineColorBlendStateCreateInfo m_colorBlendState = {};
     VkPipelineDynamicStateCreateInfo m_dynamicState = {};
-    //VkPipelineLayout                                 layout;
+    VkPipelineLayout m_pipelineLayout;
     //VkRenderPass                                     renderPass;
     //uint32_t                                         subpass;
-    //VkPipeline                                       basePipelineHandle;
-    //int32_t                                          basePipelineIndex;
-
-
 };
 
 

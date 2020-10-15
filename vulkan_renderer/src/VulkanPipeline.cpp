@@ -3,10 +3,12 @@
 
 VulkanPipeline::VulkanPipeline()
 {
+    m_graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 }
 
 VulkanPipeline::VulkanPipeline(VulkanDevice& device)
 {
+    VulkanPipeline();
     Create(device);
 }
 
@@ -29,11 +31,16 @@ void VulkanPipeline::Create(VulkanDevice& device)
     VK_ASSERT_SUCCESSED(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &m_graphicsPipelineCreateInfo, nullptr, &m_pipeline));
 }
 
-void VulkanPipeline::Destroy() 
+void VulkanPipeline::Destroy()
 {
-    if(m_pipeline)
-        vkDestroyPipeline(*device, m_pipeline, nullptr);
-    m_pipeline = VK_NULL_HANDLE;
+    if (m_pipelineLayout != VK_NULL_HANDLE) {
+        vkDestroyPipelineLayout(*m_pDevice, m_pipelineLayout, nullptr);
+        m_pipelineLayout = VK_NULL_HANDLE;
+    }
+    if (m_pipeline){
+        vkDestroyPipeline(*m_pDevice, m_pipeline, nullptr);
+        m_pipeline = VK_NULL_HANDLE;
+    }
 }
 
 void VulkanPipeline::SetShader(VkShaderStageFlagBits shaderStageFlag, VkShaderModule shaderModule)
@@ -171,9 +178,26 @@ void VulkanPipeline::SetDynamicState(uint32_t dynamicStateCount, VkDynamicState*
     m_dynamicState.pDynamicStates = pDynamicStates;
 }
 
+void VulkanPipeline::SetLayout(uint32_t setLayoutCount, VkDescriptorSetLayout* pSetLayouts, uint32_t pushConstantRangeCount, VkPushConstantRange* pPushConstantRanges)
+{
+    VkPipelineLayoutCreateInfo m_layout = {};
+    m_layout.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    m_layout.pNext = nullptr;
+    m_layout.flags = 0;
+    m_layout.setLayoutCount = setLayoutCount;
+    m_layout.pSetLayouts = pSetLayouts;
+    m_layout.pushConstantRangeCount = pushConstantRangeCount;
+    m_layout.pPushConstantRanges = pPushConstantRanges;
+    if (m_pipelineLayout != VK_NULL_HANDLE)
+        vkDestroyPipelineLayout(*m_pDevice, m_pipelineLayout, nullptr);
+    VK_ASSERT_SUCCESSED(vkCreatePipelineLayout(*m_pDevice, &m_layout, nullptr, &m_pipelineLayout));
+    m_graphicsPipelineCreateInfo.layout = m_pipelineLayout;
+}
 
-
-
+void VulkanPipeline::SetRenderPass(VkRenderPass renderPass)
+{
+    m_graphicsPipelineCreateInfo.renderPass = renderPass;
+}
 
 
 
