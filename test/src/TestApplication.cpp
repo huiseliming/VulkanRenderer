@@ -9,13 +9,15 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include "VulkanPipeline.h"
+#include "VulkanRenderPass.h"
 #include "File.h"
 
 
+Window g_window;
 VulkanDevice g_device; 
 VulkanSwapChain g_swapChain;
-Window g_window;
 VulkanPipeline g_pipeline;
+VulkanRenderPass g_renderPass;
 
 void Application::Run()
 {
@@ -66,6 +68,14 @@ void Application::StartUp()
 	g_pipeline.SetColorBlendState(VK_FALSE, VK_LOGIC_OP_COPY, 1, &colorBlendAttachmentState, blendConstants);
 	std::vector<VkDynamicState> dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_LINE_WIDTH };
 	g_pipeline.SetDynamicState(dynamicStates.size(), dynamicStates.data());
+	g_pipeline.SetLayout(0, nullptr, 0, nullptr);
+	g_renderPass.PushAttachmentDescription(0, g_swapChain.GetFormat(), VK_SAMPLE_COUNT_1_BIT, VK_ATTACHMENT_LOAD_OP_CLEAR, VK_ATTACHMENT_STORE_OP_STORE, VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	VkAttachmentReference colorAttachmentRef{};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	g_renderPass.PushSubpassDescription(0, VK_PIPELINE_BIND_POINT_GRAPHICS, 0, nullptr, 1, &colorAttachmentRef, nullptr, nullptr, 0, nullptr);
+	g_renderPass.Create(g_device);
+	g_pipeline.SetRenderPass(g_renderPass);
 	g_pipeline.Create(g_device);
 	vkDestroyShaderModule(g_device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(g_device, vertShaderModule, nullptr);

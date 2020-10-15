@@ -21,7 +21,7 @@ public:
 	void Destroy();
 
 	VkExtent2D GetExtent() { return surfaceExtent; }
-
+	VkFormat GetFormat() { return surfaceFormatKHR.format; }
 public:
 	VkDevice device;
 	VkSwapchainKHR swapChainKHR;
