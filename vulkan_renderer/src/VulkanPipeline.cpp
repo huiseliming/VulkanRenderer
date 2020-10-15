@@ -12,14 +12,18 @@ VulkanPipeline::VulkanPipeline(VulkanDevice& device)
 
 VulkanPipeline::~VulkanPipeline()
 {
+    void Destroy();
 }
 
 void VulkanPipeline::Create(VulkanDevice& device)
 {
     uint32_t index;
-    uint8_t isNonzero = _BitScanReverse(reinterpret_cast<unsigned long*>(&index), m_shaderStagesMask);
-    while (isNonzero)
+    uint32_t shaderStagesBitMap = m_shaderStagesMask;
+    //uint8_t isNonzero = _BitScanReverse(reinterpret_cast<unsigned long*>(&index), shaderStagesBitMap);
+    while (_BitScanReverse(reinterpret_cast<unsigned long*>(&index), shaderStagesBitMap)) {
+        shaderStagesBitMap ^= (1 << index);
         m_shaderStages.push_back(m_shaderStagesCache[index]);
+    }
     m_graphicsPipelineCreateInfo.stageCount = m_shaderStages.size();
     m_graphicsPipelineCreateInfo.pStages = m_shaderStages.data();
     VK_ASSERT_SUCCESSED(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &m_graphicsPipelineCreateInfo, nullptr, &m_pipeline));
@@ -27,7 +31,9 @@ void VulkanPipeline::Create(VulkanDevice& device)
 
 void VulkanPipeline::Destroy() 
 {
-
+    if(m_pipeline)
+        vkDestroyPipeline(*device, m_pipeline, nullptr);
+    m_pipeline = VK_NULL_HANDLE;
 }
 
 void VulkanPipeline::SetShader(VkShaderStageFlagBits shaderStageFlag, VkShaderModule shaderModule)

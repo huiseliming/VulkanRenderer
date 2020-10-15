@@ -32,7 +32,7 @@ public:
 
     //VkPipeline Get() { return pipeline_; }
 private:
-
+    VulkanDevice* device;
     VkPipeline m_pipeline = VK_NULL_HANDLE;
     VkGraphicsPipelineCreateInfo m_graphicsPipelineCreateInfo = {};
     uint32_t m_shaderStagesMask = 0;
